@@ -1,97 +1,5 @@
 //Arreglo de productos que contiene la información de cada uno.
-const productos = [
-  {
-    "name": "Wireless Mouse",
-    "description": "Ergonomic wireless mouse with adjustable DPI.",
-    "price": 29.99,
-    "image": "imagenes/wireless_mouse.jpg",
-    "id": 1
-  },
-  {
-    "name": "Mechanical Keyboard",
-    "description": "RGB backlit mechanical keyboard with Cherry MX switches.",
-    "price": 89.99,
-    "image": "imagenes/mechanical_keyboard.jpg",
-    "id": 2
-  },
-  {
-    "name": "Gaming Headset",
-    "description": "Surround sound gaming headset with noise-cancelling microphone.",
-    "price": 59.99,
-    "image": "imagenes/headset.jpg",
-    "id": 3
-  },
-  {
-    "name": "27-inch Monitor",
-    "description": "4K UHD monitor with IPS display and 144Hz refresh rate.",
-    "price": 329.99,
-    "image": "imagenes/27_inch_monitor.jpg",
-    "id": 4
-  },
-  {
-    "name": "Laptop Stand",
-    "description": "Adjustable aluminum laptop stand for ergonomic work setup.",
-    "price": 39.99,
-    "image": "imagenes/laptop_stand.jpg",
-    "id": 5
-  },
-  {
-    "name": "USB-C Hub",
-    "description": "Multi-port USB-C hub with HDMI, USB 3.0, and SD card reader.",
-    "price": 24.99,
-    "image": "imagenes/usbc_hub.jpg",
-    "id": 6
-  },
-  {
-    "name": "External SSD",
-    "description": "Portable external SSD with 1TB storage and USB 3.1 interface.",
-    "price": 129.99,
-    "image": "imagenes/external_ssd.jpg",
-    "id": 7
-  },
-  {
-    "name": "Smartphone Stand",
-    "description": "Adjustable smartphone stand with 360-degree rotation.",
-    "price": 19.99,
-    "image": "imagenes/smartphone_stand.jpg",
-    "id": 8
-  },
-  {
-    "name": "Bluetooth Speaker",
-    "description": "Portable Bluetooth speaker with 10-hour battery life.",
-    "price": 49.99,
-    "image": "imagenes/bt_speaker2.jpg",
-    "id": 9
-  },
-  {
-    "name": "Webcam",
-    "description": "1080p HD webcam with built-in microphone and privacy cover.",
-    "price": 34.99,
-    "image": "imagenes/webcam.jpg",
-    "id": 10
-  },
-  {
-    "name": "Wireless Charger",
-    "description": "Fast wireless charger with Qi compatibility.",
-    "price": 25.99,
-    "image": "imagenes/wireless_charger.jpg",
-    "id": 11
-  },
-  {
-    "name": "Noise-Cancelling Headphones",
-    "description": "Over-ear noise-cancelling headphones with Bluetooth connectivity.",
-    "price": 199.99,
-    "image": "imagenes/nc_headphones.jpg",
-    "id": 12
-  },
-  {
-    "name": "Smartwatch",
-    "description": "Smartwatch with heart rate monitor and GPS.",
-    "price": 149.99,
-    "image": "imagenes/smartwatch.jpg",
-    "id": 13
-  }
-];
+let productos = [];
 
 // Cargar productos desde localStorage si existen
 function cargarProductosDesdeLocalStorage() {
@@ -99,10 +7,10 @@ function cargarProductosDesdeLocalStorage() {
 
   if (productosGuardados) {
     const productosCargados = JSON.parse(productosGuardados);
-    
+
     productosCargados.forEach(productoCargado => {
       const productoExistente = productos.find(producto => producto.id === productoCargado.id);
-      
+
       //Verificar si el producto ya existe en el arreglo.
       if (!productoExistente) {
         productos.push(productoCargado);
@@ -123,8 +31,8 @@ function noResultados() {
 
 // Función que se encarga de mostrar los productos en la interfaz
 function displayProducts(productos) {
-  tarjetas.innerHTML = ""; 
-//Muestra mensaje si no hay resultados.
+  tarjetas.innerHTML = "";
+  //Muestra mensaje si no hay resultados.
   if (productos.length === 0) {
     noResultados();
   } else {
@@ -163,10 +71,10 @@ function displayProducts(productos) {
       tarjetas.appendChild(column);
 
       // Evento para abrir el modal con la descripción
-      column.querySelector('.card').addEventListener('click', function() {
+      column.querySelector('.card').addEventListener('click', function () {
         abrirProducto(producto);
       });
-      column.querySelector('.card').addEventListener('dragstart', function(event) {
+      column.querySelector('.card').addEventListener('dragstart', function (event) {
         event.dataTransfer.setData('text/plain', JSON.stringify(producto));
       });
     });
@@ -174,10 +82,10 @@ function displayProducts(productos) {
 }
 
 // Evento para manejar la búsqueda de productos
-buscarBoton.addEventListener('click', function() {
+buscarBoton.addEventListener('click', function () {
   const query = inputIngresado.value.toLowerCase();
 
-  const filteredProducts = productos.filter(product => 
+  const filteredProducts = productos.filter(product =>
     product.name.toLowerCase().includes(query)
   );
 
@@ -185,10 +93,10 @@ buscarBoton.addEventListener('click', function() {
 });
 
 // Escuchar el evento 'input' en el campo de búsqueda para actualizar resultados en tiempo real
-inputIngresado.addEventListener('input', function() {
+inputIngresado.addEventListener('input', function () {
   const query = inputIngresado.value.toLowerCase();
 
-  const filteredProducts = productos.filter(product => 
+  const filteredProducts = productos.filter(product =>
     product.name.toLowerCase().includes(query)
   );
 
@@ -207,7 +115,7 @@ function ordenarMayorAMenor() {
 }
 
 // Manejar el cambio en el menú desplegable
-document.getElementById('ordenar').addEventListener('change', function() {
+document.getElementById('ordenar').addEventListener('change', function () {
   const valorSeleccionado = this.value;
 
   if (valorSeleccionado === 'menorAMayor') {
@@ -221,8 +129,10 @@ document.getElementById('ordenar').addEventListener('change', function() {
 
 /*------------------------------ PARTE 2 ---------------------------------- */
 
-// Funciones para manejar la apertura y cierre de modales 
-document.addEventListener('DOMContentLoaded', () => {
+// Funciones para manejar la apertura y cierre de modales
+document.addEventListener('DOMContentLoaded', async () => {
+
+  await fetchProducts()
 
   function openModal($el) {
     $el.classList.add('is-active');
@@ -275,13 +185,13 @@ function guardarProductosEnLocalStorage() {
 }
 
 // Función para agregar un nuevo producto desde el formulario
-function agregarProducto() {
+async function agregarProducto() {
   const nameValue = name2.value.trim();
   const descriptionValue = description.value.trim();
   const priceValue = parseFloat(price.value);
   const imageFile = image.files.length > 0 ? image.files[0] : null;
   const id = productos.length + 1;
-  
+
   // Validaciones de los campos del formulario
   if (nameValue === "") {
     alert("El nombre del producto no puede estar vacío.");
@@ -317,8 +227,8 @@ function agregarProducto() {
     price: priceValue,
     image: imageFile ? URL.createObjectURL(imageFile) : "https://via.placeholder.com/150?text=Image+Not+Available"
   };
-  
-  productos.push(nuevoProducto);
+
+  await AddProduct(nuevoProducto);
   guardarProductosEnLocalStorage(); // Guardar productos actualizados en localStorage
   displayProducts(productos);
 }
@@ -373,11 +283,11 @@ function cargarCarritoDesdeLocalStorage() {
 }
 
 //Funcion para soltar los elementos en el carrito de compras.
-carrito.addEventListener('dragover', function(event) {
+carrito.addEventListener('dragover', function (event) {
   event.preventDefault(); // Permite soltar
 });
 
-carrito.addEventListener('drop', function(event) {
+carrito.addEventListener('drop', function (event) {
   event.preventDefault();
   const data = event.dataTransfer.getData('text/plain');
   const producto = JSON.parse(data);
@@ -415,20 +325,44 @@ function eliminarProductoDelCarrito(id) {
 
     // Actualizar la interfaz
     const carritoItems = document.getElementById('carritoItems');
-    const item = carritoItems.querySelector(`.box:nth-child(${index + 1})`);
+    const item = carritoItems.querySelector('box:nth-child(${index + 1})');
     carritoItems.removeChild(item);
     guardarCarritoEnLocalStorage(); // Actualizar el carrito en localStorage
   }
+};
+
+const fetchProducts = async () => {
+  const apiUrl = "http://localhost:3000/api/products"
+
+  try {
+    const response = await fetch(apiUrl);
+    if (response.ok) {
+      const jsonResponse = await response.json();
+      productos = jsonResponse;
+      displayProducts(productos);
+    }
+  } catch (error) {
+    console.error('Errir fetching the products.', error);
+  }
 }
 
-let url = "http://localhost:3000/api/tasks";
 
-fetch(url, {
-  method: "GET",
-  header:{
-    "Content-Type":"application/json",
-  },
-}).then((res)=>
-{
-  console.log(res);
-}).catch((err)=> console.log(err))
+const AddProduct = async (producto) => {
+  try {
+    const response = await fetch("http://localhost:3000/api/products", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(producto),
+    });
+    if (response.ok) {
+      const newProduct = await response.json();
+      console.log(newProduct);
+      productos.push(newProduct);
+      displayProducts(productos);
+    }
+  } catch (error) {
+    console.log(error)
+  }
+};
