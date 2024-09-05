@@ -41,6 +41,7 @@ function displayProducts(productos) {
       // Crear la estructura de la tarjeta para cada producto
       const column = document.createElement('div');
       column.className = "column is-full-tablet is-half-desktop is-one-third-widescreen is-one-quarter-fullhd";
+      column.setAttribute('data-id', producto.id);
 
       // Template HTML para la tarjeta del producto
       const productCard = `
@@ -61,6 +62,7 @@ function displayProducts(productos) {
               <p class="title is-4">${producto.name}</p>
               <p class="has-text-weight-bold">$${producto.price}</p>
               <p class="subtitle is-6">${producto.description}</p>
+              <button class="button is-danger is-small" onclick="eliminarProducto(${producto.id}, event)">Eliminar</button>
             </div>
           </div>
         </div>
@@ -80,6 +82,8 @@ function displayProducts(productos) {
     });
   }
 }
+
+
 
 // Evento para manejar la búsqueda de productos
 buscarBoton.addEventListener('click', function () {
@@ -172,6 +176,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   displayProducts(productos);         // Mostrar los productos
 });
 
+
+
+
 // Variables para los campos del formulario de producto
 const name2 = document.getElementById('Name');
 const description = document.getElementById('description');
@@ -183,6 +190,30 @@ const image = document.getElementById('image');
 function guardarProductosEnLocalStorage() {
   localStorage.setItem('productos', JSON.stringify(productos));
 }
+
+
+//---------------------MANIPULACIÓN DE PRODUCTOS-----------------------------------------------------
+
+// Agregar evento al botón de crear producto
+const funcionCrear = document.getElementById('Create');
+displayProducts(productos);
+funcionCrear.addEventListener('click', agregarProducto);
+
+// Variables para mostrar detalles del producto en el modal
+const nombreAInsertar = document.getElementById('modalName');
+const descriptionAInsertar = document.getElementById('modalDescription');
+const precioAInsertar = document.getElementById('modalPrice');
+
+// Función para abrir el modal con detalles de un producto
+function abrirProducto(product) {
+  nombreAInsertar.textContent = product.name; // Actualizar la descripción en el modal
+  descriptionAInsertar.textContent = product.description; // Actualizar la descripción en el modal
+  precioAInsertar.textContent = "$" + product.price; // Actualizar la descripción en el modal
+
+  const modal = document.getElementById('productModal');
+  modal.classList.add('is-active'); // Abrir el modal
+}
+
 
 // Función para agregar un nuevo producto desde el formulario
 async function agregarProducto() {
@@ -233,26 +264,28 @@ async function agregarProducto() {
   displayProducts(productos);
 }
 
-// Agregar evento al botón de crear producto
-const funcionCrear = document.getElementById('Create');
-displayProducts(productos);
-funcionCrear.addEventListener('click', agregarProducto);
+async function eliminarProducto(id,event){
+  event.stopPropagation();//esto sirve para que al paretar el botón eliminar no aparezca el modal con la descripción del producto
+  const index = productos.findIndex(producto => producto.id === id);
+  if (index !== -1) {
+    productos.splice(index, 1);  
 
-// Variables para mostrar detalles del producto en el modal
-const nombreAInsertar = document.getElementById('modalName');
-const descriptionAInsertar = document.getElementById('modalDescription');
-const precioAInsertar = document.getElementById('modalPrice');
+    let productosDeLaPagina = document.getElementById('tarjetas');
+    let prod = productosDeLaPagina.querySelector(`[data-id="${id}"]`);
 
-// Función para abrir el modal con detalles de un producto
-function abrirProducto(product) {
-  nombreAInsertar.textContent = product.name; // Actualizar la descripción en el modal
-  descriptionAInsertar.textContent = product.description; // Actualizar la descripción en el modal
-  precioAInsertar.textContent = "$" + product.price; // Actualizar la descripción en el modal
+    if (prod) {
+      productosDeLaPagina.removeChild(prod);
+    }
+    guardarProductosEnLocalStorage();
+  }
 
-  const modal = document.getElementById('productModal');
-  modal.classList.add('is-active'); // Abrir el modal
-}
+  await DeleteProduct(id); //acá se eliminaría el producto del server, con el resto lo eliminaríamos del frontend
+  guardarProductosEnLocalStorage();
+  displayProducts(products);
+};
 
+
+//------------------------CARRITO-----------------------------------
 const carrito = document.getElementById('carrito');
 const productosEnCarrito = [];
 
@@ -342,7 +375,7 @@ const fetchProducts = async () => {
       displayProducts(productos);
     }
   } catch (error) {
-    console.error('Errir fetching the products.', error);
+    console.log('Error fetching the products.', error);
   }
 }
 
@@ -365,4 +398,18 @@ const AddProduct = async (producto) => {
   } catch (error) {
     console.log(error)
   }
-};
+}
+
+const DeleteProduct = async (id) =>{
+  try{
+    const response = await fetch("http://localhost:3000/api/products/${id}",{
+      method: "DELETE",
+    });
+    if (response.ok){
+      const deletedProduct = await response.json();
+      eliminarProducto(deletedProduct.id);
+    }
+  }catch (error){
+    console.log(error);
+  }
+}
