@@ -59,10 +59,11 @@ function displayProducts(productos) {
               </figure>
             </div>
             <div class="media-content">
-              <p class="title is-4">${producto.name}</p>
-              <p class="has-text-weight-bold">$${producto.price}</p>
-              <p class="subtitle is-6">${producto.description}</p>
+              <input id="name-${product.id}" class="title is-4">${producto.name}</input>
+              <input id="price-${product.id}" class="has-text-weight-bold">$${producto.price}</input>
+              <input id="description-${producto.id}" class="subtitle is-6">${producto.description}</input>
               <button class="button is-danger is-small" onclick="eliminarProducto(${producto.id}, event)">Eliminar</button>
+              <button class="button is-info is-small" onclick="patchProduct(${producto.id}, event)">Editar</button>
             </div>
           </div>
         </div>
@@ -284,6 +285,18 @@ async function eliminarProducto(id,event){
   displayProducts(products);
 };
 
+async function patchProduct(id,event){
+  event.stopPropagation();
+  const inputName = document.getElementById(`name-${product.id}`);
+  const inputDescription = document.getElementById(`description-${product.id}`);
+  const inputPrice = documen.getElementById(`price-${product.id}`);
+
+  
+  const index = productos.findIndex(producto => producto.id === id);
+  const productoAEditar = { ...productos[index] };
+
+} 
+
 
 //------------------------CARRITO-----------------------------------
 const carrito = document.getElementById('carrito');
@@ -411,5 +424,20 @@ const DeleteProduct = async (id) =>{
     }
   }catch (error){
     console.log(error);
+  }
+}
+
+const PatchProduct = async(id,campoAEditar) =>{
+  try{
+    const response = await fetch(`http://localhost:3000/api/products/${id}`,{
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(campoAEditar),
+    });
+
+  }catch{
+
   }
 }
