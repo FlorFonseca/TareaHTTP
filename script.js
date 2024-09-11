@@ -289,11 +289,19 @@ async function patchProduct(id,event){
   event.stopPropagation();
   const inputName = document.getElementById(`name-${product.id}`);
   const inputDescription = document.getElementById(`description-${product.id}`);
-  const inputPrice = documen.getElementById(`price-${product.id}`);
+  const inputPrice = document.getElementById(`price-${product.id}`);
 
   
-  const index = productos.findIndex(producto => producto.id === id);
-  const productoAEditar = { ...productos[index] };
+  const productoAEditar = {
+    name: inputName.value,
+    description: inputDescription.value,
+    price: inputPrice.value
+  };
+  try{
+    await PatchProduct(id,productoAEditar);
+  }catch (error){
+    console.log(error);
+  }
 
 } 
 
@@ -436,8 +444,10 @@ const PatchProduct = async(id,campoAEditar) =>{
       },
       body: JSON.stringify(campoAEditar),
     });
-
-  }catch{
-
+    if (response.ok){
+      await response.json();
+    }
+  }catch (error){
+    console.log(error);
   }
 }
