@@ -59,9 +59,9 @@ function displayProducts(productos) {
               </figure>
             </div>
             <div class="media-content">
-              <input id="name-${product.id}" class="title is-4">${producto.name}</input>
-              <input id="price-${product.id}" class="has-text-weight-bold">$${producto.price}</input>
-              <input id="description-${producto.id}" class="subtitle is-6">${producto.description}</input>
+              <input id="name-${producto.id}" class="title is-4" value="${producto.name}">
+              <input id="price-${producto.id}" class="has-text-weight-bold" value="${producto.price}">
+              <input id="description-${producto.id}" class="subtitle is-6" value="${producto.description}">
               <button class="button is-danger is-small" onclick="eliminarProducto(${producto.id}, event)">Eliminar</button>
               <button class="button is-info is-small" onclick="patchProduct(${producto.id}, event)">Editar</button>
             </div>
@@ -200,6 +200,7 @@ const funcionCrear = document.getElementById('Create');
 displayProducts(productos);
 funcionCrear.addEventListener('click', agregarProducto);
 
+
 // Variables para mostrar detalles del producto en el modal
 const nombreAInsertar = document.getElementById('modalName');
 const descriptionAInsertar = document.getElementById('modalDescription');
@@ -265,11 +266,12 @@ async function agregarProducto() {
   displayProducts(productos);
 }
 
-async function eliminarProducto(id,event){
+
+async function eliminarProducto(id, event) {
   event.stopPropagation();//esto sirve para que al paretar el botón eliminar no aparezca el modal con la descripción del producto
   const index = productos.findIndex(producto => producto.id === id);
   if (index !== -1) {
-    productos.splice(index, 1);  
+    productos.splice(index, 1);
 
     let productosDeLaPagina = document.getElementById('tarjetas');
     let prod = productosDeLaPagina.querySelector(`[data-id="${id}"]`);
@@ -282,28 +284,34 @@ async function eliminarProducto(id,event){
 
   await DeleteProduct(id); //acá se eliminaría el producto del server, con el resto lo eliminaríamos del frontend
   guardarProductosEnLocalStorage();
-  displayProducts(products);
+  displayProducts(productos);
 };
 
-async function patchProduct(id,event){
+async function patchProduct(id, event) {
   event.stopPropagation();
-  const inputName = document.getElementById(`name-${product.id}`);
-  const inputDescription = document.getElementById(`description-${product.id}`);
-  const inputPrice = document.getElementById(`price-${product.id}`);
+  const inputName = document.getElementById(`name-${id}`).value;
+  const inputDescription = document.getElementById(`description-${id}`).value;
+  const inputPrice = document.getElementById(`price-${id}`).value;
 
-  
   const productoAEditar = {
-    name: inputName.value,
-    description: inputDescription.value,
-    price: inputPrice.value
+    name: inputName,
+    description: inputDescription,
+    price: inputPrice,
   };
-  try{
-    await PatchProduct(id,productoAEditar);
-  }catch (error){
-    console.log(error);
-  }
 
-} 
+  try {
+    await PatchProduct(id, productoAEditar);
+
+    const index = productos.findIndex(producto => producto.id === id);
+    if (index !== -1) {
+      productos[index] = { ...productos[index], ...productoAEditar };
+      guardarProductosEnLocalStorage();
+      displayProducts(productos);
+    }
+  } catch (error) {
+    console.log("Error al actualizar el producto:", error);
+  }
+}
 
 
 //------------------------CARRITO-----------------------------------
@@ -421,33 +429,33 @@ const AddProduct = async (producto) => {
   }
 }
 
-const DeleteProduct = async (id) =>{
-  try{
-    const response = await fetch("http://localhost:3000/api/products/${id}",{
+const DeleteProduct = async (id) => {
+  try {
+    const response = await fetch("http://localhost:3000/api/products/${id}", {
       method: "DELETE",
     });
-    if (response.ok){
+    if (response.ok) {
       const deletedProduct = await response.json();
       eliminarProducto(deletedProduct.id);
     }
-  }catch (error){
+  } catch (error) {
     console.log(error);
   }
 }
 
-const PatchProduct = async(id,campoAEditar) =>{
-  try{
-    const response = await fetch(`http://localhost:3000/api/products/${id}`,{
+const PatchProduct = async (id, campoAEditar) => {
+  try {
+    const response = await fetch("http://localhost:3000/api/products/${id}", {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(campoAEditar),
     });
-    if (response.ok){
+    if (response.ok) {
       await response.json();
     }
-  }catch (error){
+  } catch (error) {
     console.log(error);
   }
 }
